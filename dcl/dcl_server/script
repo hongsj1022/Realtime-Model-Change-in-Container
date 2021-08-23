@@ -1,0 +1,45 @@
+#!/bin/bash
+# Function parameter
+# Dname : Docker name
+# Dpath : Dynamic changing path
+
+args=("$@")
+Dname=${args[0]}
+Dpath=${args[1]}
+Path=$(pwd)
+
+echo Docker Dame : $Dname
+echo Dynamic Changing Path : $Dpath
+
+# 입력한 도커의 LowerD 경로를 환경변수로 저장
+lowerD=$(sudo docker inspect $Dname | grep 'LowerDir' | awk '{print $2}' | cut -b2- | rev | cut -b3- | rev)
+echo lowerD
+echo $lowerD
+
+# 입력한 도커의 Layer 정보 폴더 경로를 환경변수로 저장
+DockerD=$(sudo docker inspect $Dname | grep 'UpperDir' | awk '{print $2}'| cut -b2- | rev | cut -b8- | rev)
+echo DockerD
+echo $DockerD
+#ctpath=$(docker inspect test_6 | grep hosts | awk '{print $2}'| cut -b2-| rev | cut -b8- | rev)
+
+#cd $ctpath
+#cd $DockerD
+
+# 입력할 컨테이너 Layer 생성 및 삭제
+#sudo rm -r /tmp/$Dname || echo New container layer OK
+#sudo mkdir /tmp/$Dname
+# 상위 경로 저장
+#Tupperdir=/tmp/$Dname
+
+# 도커 내 Overlay FS umount
+#sudo umount ./merged/
+# Lower 디렉토리에 변경할 디렉터리 추가, 컨테이너 레이어 변경(아무것도 없는 폴터) 후 merge
+#sudo mount -t overlay overlay -olowerdir=$lowerD:$Dpath,upperdir=$Tupperdir,workdir=work merged
+sudo rmdir -f $DockerD/diff/usr/src/app
+sudo mkdir -p $DockerD/diff/usr/src/app
+sudo cp -r $Path/material.py $DockerD/diff/usr/src/app
+
+#docker restart $Dname
+time docker restart $Dname
+# 실행 방법 : ./스크립트.sh (도커이름) (변경할디렉터리)
+
