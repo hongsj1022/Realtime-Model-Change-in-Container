@@ -9,13 +9,16 @@ from imutils.video import WebcamVideoStream
 
 app = Flask(__name__)
 
+#Define logger
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(formatter)
+logging.Formatter.converter = time.localtime
 logger.addHandler(stream_handler)
 
+#Access webcam
 logger.info("Access to monitoring page")
 vs = WebcamVideoStream(src=0).start()
 logger.info("Streaming started")
@@ -46,6 +49,7 @@ def stream():
 	#vs = WebcamVideoStream(src=0).start()
 	#logger.info("Streaming started")
 	#time.sleep(2.0)
+
 	while True:
 		frame = vs.read()
 		frame = imutils.resize(frame, width=500)
@@ -67,7 +71,5 @@ def video_feed():
 	return Response(stream(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
-
 if __name__ == "__main__":
 	app.run(host = '0.0.0.0', port=8080)
-
