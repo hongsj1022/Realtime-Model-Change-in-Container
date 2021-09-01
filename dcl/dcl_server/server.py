@@ -1,9 +1,9 @@
 from __future__ import division
 
-from models import *
-from utils.utils import *
-from utils.datasets import *
-from flask import Flask, request, app, render_template, Response
+from can_detection.models import *
+from can_detection.utils.utils import *
+from can_detection.utils.datasets import *
+from flask import Flask, request, app, render_template, Response, redirect, url_for
 from PIL import Image
 
 import torch
@@ -84,7 +84,15 @@ def monitoring():
 @app.route('/can', methods=["GET", "POST"])
 def can():
         """ CCTV Streaming Page """
-        return render_template('can_detection.html')
+        return render_template('can.html')
+
+@app.route('/submit',methods=["GET", "POST"])
+def submit():
+	if request.method == 'POST':
+		value = request.form['service']
+		value = str(value)
+	return redirect(url_for(value))
+
 
 def stream():
 
@@ -108,11 +116,11 @@ def stream():
 def can_stream():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--image_folder", type=str, default="data/test/", help="path to dataset")
+    parser.add_argument("--image_folder", type=str, default="can_detection/data/test/", help="path to dataset")
     parser.add_argument("--video_file", type=str, default="0", help="path to dataset")
-    parser.add_argument("--model_def", type=str, default="config/yolov3-tiny.cfg", help="path to model definition file")
-    parser.add_argument("--weights_path", type=str, default="checkpoints_cafe7/tiny1_4000.pth", help="path to weights file")
-    parser.add_argument("--class_path", type=str, default="data/cafe2/classes.names", help="path to class label file")
+    parser.add_argument("--model_def", type=str, default="can_detection/config/yolov3-tiny.cfg", help="path to model definition file")
+    parser.add_argument("--weights_path", type=str, default="can_detection/checkpoints_cafe7/tiny1_4000.pth", help="path to weights file")
+    parser.add_argument("--class_path", type=str, default="can_detection/data/cafe2/classes.names", help="path to class label file")
     parser.add_argument("--conf_thres", type=float, default=0.8, help="object confidence threshold")
     parser.add_argument("--nms_thres", type=float, default=0.4, help="iou thresshold for non-maximum suppression")
     parser.add_argument("--batch_size", type=int, default=1, help="size of the batches")
@@ -146,7 +154,7 @@ def can_stream():
     
     Tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
     
-    cap = cv2.VideoCapture('data/cafe7.avi')
+    cap = cv2.VideoCapture('can_detection/data/cafe7.avi')
     colors = np.random.randint(0, 255, size=(len(classes), 3), dtype="uint8")
     a=[]
     
@@ -193,10 +201,10 @@ def can_stream():
                         cv2.putText(img, str("%.2f" % float(conf)), (x2, y2 - box_h), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                                 color, 2)
                     
-        cv2.imwrite('/home/pi/dcl/dcl_server/cctv.jpg', changeRGB2BGR(RGBimg))
+        cv2.imwrite('can_detection/cctv.jpg', changeRGB2BGR(RGBimg))
         
         yield (b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + open('cctv.jpg', 'rb').read() + b'\r\n')
+                b'Content-Type: image/jpeg\r\n\r\n' + open('can_detection/cctv.jpg', 'rb').read() + b'\r\n')
 
 @app.route('/video_feed')
 def video_feed():
