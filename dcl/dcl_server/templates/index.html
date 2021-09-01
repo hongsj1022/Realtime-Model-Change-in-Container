@@ -21,9 +21,9 @@
 			</header>
 
 		<!-- Service Selection Form -->
-			<form id="service-selection-form" method="post" action="#">
-				<input type="email" name="service" id="service" placeholder="Service Name"/>
-				<input type="submit" value="Access Service" />
+			<form id="service-selection-form" method="post" action="/submit">
+				<input type="text" name="service" id="service" placeholder="Service Name"/>
+				<input type="submit" value="Access Service" onclick="moveto();" />
 			</form>
 
 		<!-- Footer -->
@@ -41,6 +41,12 @@
 
 		<!-- Scripts -->
 			<script src="static/js/main.js"></script>
-
+			<!-- script>
+				const moveto = () => {
+					const input = document.getElementById("service").value;
+					console.log(input);
+					location.href = input;
+				};
+			</script -->
 	</body>
 </html>
