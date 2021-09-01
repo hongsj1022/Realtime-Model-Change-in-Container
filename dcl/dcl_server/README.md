@@ -8,7 +8,7 @@ Dockerfile Reference: https://gist.github.com/akaanirban/621e63237e63bb169126b53
 
 ## Run Docker Container with Options
 
->  sudo docker run sudo docker run --privileged \
+>  sudo docker run --privileged \
 >             -v /etc/localtime:/etc/localtime \
 >             -v /dev/video0:/dev/video0 \
 >             -p <port_num>:8080 \
