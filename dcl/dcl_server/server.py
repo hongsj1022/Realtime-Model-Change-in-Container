@@ -2,14 +2,15 @@ from __future__ import division
 
 from can_detection.models import *
 from can_detection.utils.utils import *
-from can_detection.utils.datasets import *
+from can_detection.utils.datasets import pad_to_square, resize
 from flask import Flask, request, app, render_template, Response, redirect, url_for
-from PIL import Image
+#from PIL import Image
 
 import torch
 from torch.utils.data import DataLoader
-from torchvision import datasets
+#from torchvision import datasets
 from torch.autograd import Variable
+import torchvision.transforms as transforms
 
 import argparse
 import os
@@ -101,7 +102,8 @@ def stream():
 		frame = imutils.resize(frame, width=500)
 		rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-		timestamp = datetime.datetime.now() + datetime.timedelta(hours=9)
+		#timestamp = datetime.datetime.now() + datetime.timedelta(hours=9)
+		timestamp = datetime.datetime.now()
 		cv2.putText(frame, timestamp.strftime("%A %d %B %Y %I:%M:%S%p"), (10, frame.shape[0] - 10),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
 
@@ -143,12 +145,12 @@ def can_stream():
 
     model.eval()  # Set in evaluation mode
 
-    dataloader = DataLoader(
-        ImageFolder(opt.image_folder, img_size=opt.img_size),
-        batch_size=opt.batch_size,
-        shuffle=False,
-        num_workers=opt.n_cpu,
-    )
+    #dataloader = DataLoader(
+    #    ImageFolder(opt.image_folder, img_size=opt.img_size),
+    #    batch_size=opt.batch_size,
+    #    shuffle=False,
+    #    num_workers=opt.n_cpu,
+    #)
 
     classes = load_classes(opt.class_path)  # Extracts class labels from file
     
@@ -192,7 +194,7 @@ def can_stream():
                         #if (classes[int(cls_pred)] == target):
                         #    box_w = x2 - x1
                         #    box_h = y2 - y1
-                        
+                        x1, x2, y1, y2 = int(x1), int(x2), int(y1), int(y2)
                         box_w = x2 - x1
                         box_h = y2 - y1
                         color = [int(c) for c in colors[int(cls_pred)]]
