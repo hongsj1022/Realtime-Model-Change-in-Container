@@ -9,10 +9,6 @@ import numpy as np
 from can_detection.utils.parse_config import *
 from can_detection.utils.utils import build_targets, to_cpu, non_max_suppression
 
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-
-
 def create_modules(module_defs):
     """
     Constructs module list of layer blocks from module configuration in module_defs

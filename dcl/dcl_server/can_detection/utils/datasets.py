@@ -3,14 +3,14 @@ import random
 import os
 import sys
 import numpy as np
-from PIL import Image
+#from PIL import Image
 import torch
 import torch.nn.functional as F
 import time
 
 from can_detection.utils.augmentations import horisontal_flip
 from torch.utils.data import Dataset
-import torchvision.transforms as transforms
+#import torchvision.transforms as transforms
 
 
 def pad_to_square(img, pad_value):
@@ -30,7 +30,7 @@ def resize(image, size):
     image = F.interpolate(image.unsqueeze(0), size=size, mode="nearest").squeeze(0)
     return image
 
-
+'''
 def random_resize(images, min_size=288, max_size=448):
     new_size = random.sample(list(range(min_size, max_size + 1, 32)), 1)[0]
     images = F.interpolate(images, size=new_size, mode="nearest")
@@ -149,3 +149,4 @@ class ListDataset(Dataset):
 
     def __len__(self):
         return len(self.img_files)
+'''
