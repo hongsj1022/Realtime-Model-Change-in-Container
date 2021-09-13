@@ -26,19 +26,19 @@ def upper_dir(container_name):
 	client = docker.APIClient()
 	
 	running_container = dockerClient.containers.list()
-	
+
 	if not running_container:
                 print("No running container")
                 overlay = "/var/lib/docker/overlay2/2921a7e1349b91a06253b29ce797d4331503925ace9f06b143d4aea49ea89f58/diff"
 	else:
 		names = [container.name for container in running_container]
-		#print(names)
+		print(names)
 
 		for name in names:
 			if name == container_name:
-				container_id = container.id
+				container_id = name.id
 	
-		overlay = client.inspect_container(container_id)['GraphDriver']['Data']['MergeDir']
+		overlay = client.inspect_container(container_id)['GraphDriver']['Data']['UpperDir']
 	
 	return overlay
 
@@ -48,14 +48,19 @@ if __name__ == "__main__":
 	cid, model = args()
 	
 	#Get container storage driver to change model
-	overlay = upper_dir(cid)
-	overlay = overlay + '/home/dcl_server'
-	print(overlay)
+	overlay = upper_dir(cid) + "/home/dcl_server"
+	old_model = overlay + model
 
 	#Change model
 	#print(datetime.datetime.now())
-	#shutil.copy(model, overlay)
+	old_model_size = os.stat(old_model).st_size
+	new_model_size = os.stat(model).st_size
 	
-	#url = "http://localhost:8080/test"
+	os.remove(old_model)
+	shutil.copy(model, old_model)
+
+	print(old_model + "(" + old_model_size + "bytes) is updated to " + new_model + "(" + new_model_size + "bytes) in container " + cid + " - " + datetime.datetime.now())
+	
+	url = "http://localhost:8080/test"
 	#res = requests.get(url)
 	#print(res.status_code,datetime.datetime.now())
