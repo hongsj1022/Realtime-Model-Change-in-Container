@@ -1,4 +1,4 @@
-# usage: python manage.py --cid <container_name> --model_dir <model_directory>
+# usage: python3 manage.py --cid <container_name> --model_dir <model_directory>
 
 import requests
 import argparse
@@ -26,14 +26,19 @@ def upper_dir(container_name):
 	client = docker.APIClient()
 	
 	running_container = dockerClient.containers.list()
-	names = [container.name for container in running_container]
-	#print(names)
-
-	for name in names:
-		if name == container_name:
-			container_id = container.id
 	
-	overlay = client.inspect_container(container.id)['GraphDriver']['Data']['UpperDir']
+	if not running_container:
+                print("No running container")
+                overlay = "/var/lib/docker/overlay2/2921a7e1349b91a06253b29ce797d4331503925ace9f06b143d4aea49ea89f58/diff"
+	else:
+		names = [container.name for container in running_container]
+		#print(names)
+
+		for name in names:
+			if name == container_name:
+				container_id = container.id
+	
+		overlay = client.inspect_container(container_id)['GraphDriver']['Data']['MergeDir']
 	
 	return overlay
 
@@ -44,13 +49,13 @@ if __name__ == "__main__":
 	
 	#Get container storage driver to change model
 	overlay = upper_dir(cid)
-	overlay = overlay + '/usr/src/app/'
+	overlay = overlay + '/home/dcl_server'
 	print(overlay)
 
 	#Change model
-	print(datetime.datetime.now())
-	shutil.copy(model, overlay)
+	#print(datetime.datetime.now())
+	#shutil.copy(model, overlay)
 	
-	url = "http://localhost:8080/test"
-	res = requests.get(url)
-	print(res.status_code,datetime.datetime.now())
+	#url = "http://localhost:8080/test"
+	#res = requests.get(url)
+	#print(res.status_code,datetime.datetime.now())
