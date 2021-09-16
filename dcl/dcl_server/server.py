@@ -94,6 +94,15 @@ def submit():
 		value = str(value)
 	return redirect(url_for(value))
 
+@app.route('/update',methods=["GET", "POST"])
+def update():
+	if request.method == 'POST':
+		cid = str(request.form['cid'])
+		model = str(request.form['model'])
+		manage = "python /home/dcl/dcl_manager/manage.py --cid " + cid + " --model_dir /home/dcl/dcl_manager/" + model
+		print(manage)
+		os.system(manage)
+	return redirect(url_for('can'))
 
 def stream():
 
@@ -107,10 +116,10 @@ def stream():
 		cv2.putText(frame, timestamp.strftime("%A %d %B %Y %I:%M:%S%p"), (10, frame.shape[0] - 10),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
 
-		cv2.imwrite('cctv.jpg',frame)
+		cv2.imwrite('can_detection/cctv.jpg',frame)
 
 		yield (b'--frame\r\n'
-			b'Content-Type: image/jpeg\r\n\r\n' + open('cctv.jpg', 'rb').read() + b'\r\n')
+			b'Content-Type: image/jpeg\r\n\r\n' + open('can_detection/cctv.jpg', 'rb').read() + b'\r\n')
 
 	#vs.stop()
 
@@ -132,19 +141,20 @@ def can_stream():
     opt = parser.parse_args()
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
+    #first_time = datetime.datetime.now()
     # Set up model
     model = Darknet(opt.model_def, img_size=opt.img_size).to(device)
-    
+    #second_time = datetime.datetime.now()
     if opt.weights_path.endswith(".weights"):
         # Load darknet weights
         model.load_darknet_weights(opt.weights_path)
     else:
         # Load checkpoint weights
         model.load_state_dict(torch.load(opt.weights_path, map_location=device))
-
+    #third_time = datetime.datetime.now()
     model.eval()  # Set in evaluation mode
-
+    #fourth_time = datetime.datetime.now()
+    #print(second_time-first_time, third_time-second_time, fourth_time-third_time)
     #dataloader = DataLoader(
     #    ImageFolder(opt.image_folder, img_size=opt.img_size),
     #    batch_size=opt.batch_size,
