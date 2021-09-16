@@ -7,5 +7,9 @@
 <body>
 	<h1>Can Detection</h1>
 	<img src="{{ url_for('can_detection') }}">
+	<form id="model-update-form" method="post" action="/update">
+		<input type="text" name="cid" placeholder="container" autocomplete="off"/>
+		<input type="text" name="model" placeholder="model" autocomplete="off"/>
+		<input type="submit" value="Model Update" onClick="moveto();" />
 </body>
 </html>
