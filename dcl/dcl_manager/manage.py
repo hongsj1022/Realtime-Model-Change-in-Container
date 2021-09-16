@@ -1,4 +1,4 @@
-# usage: python3 manage.py --cid <container_name> --model_dir <model_directory>
+# usage: python manage.py --cid <container_name> --model_dir <model_directory>
 
 import os
 import requests
@@ -30,7 +30,8 @@ def upper_dir(container_name):
 
 	if not running_container:
                 print("No running container")
-                overlay = "/var/lib/docker/overlay2/2921a7e1349b91a06253b29ce797d4331503925ace9f06b143d4aea49ea89f58/diff"
+		exit()
+
 	else:
 		names = [container.name for container in running_container]
 
@@ -48,18 +49,19 @@ if __name__ == "__main__":
 	cid, new_model = args()
 	
 	#Get container storage driver to change model
-	overlay = upper_dir(cid) + "/home/dcl_server/can_detection/"
-	old_model = overlay + new_model
+	overlay = upper_dir(cid)
+	old_model = overlay + "/home/dcl_server/can_detection/checkpoints_cafe7/tiny1_4000.pth"
 
 	#Change model
 	#print(datetime.datetime.now())
-	old_model_size = str(os.stat(old_model).st_size)
+	#old_model_size = str(os.stat(old_model).st_size)
 	new_model_size = str(os.stat(new_model).st_size)
 	
 	#os.remove(old_model)
 	shutil.copy(new_model, old_model)
-	print("Old_model(" + old_model_size + " bytes)" + " is updated to " + "New_model(" + new_model_size + " bytes)" + " in container " + cid)
+	#print("OLD model(" + old_model_size + " bytes)" + " is updated to " + "NEW model(" + new_model_size + " bytes)" + " in container " + cid)
+        print("updated to " + "NEW model(" + new_model_size + " bytes)" + " in container " + cid)
 	
-	url = "http://localhost:8080/test"
-	#res = requests.get(url)
-	#print(res.status_code,datetime.datetime.now())
+	url = "http://localhost:8080/can"
+	res = requests.get(url)
+	print(res.status_code,datetime.datetime.now())
