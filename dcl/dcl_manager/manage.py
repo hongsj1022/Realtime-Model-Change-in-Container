@@ -1,5 +1,21 @@
 # usage: python manage.py --cid <container_name> --model_dir <model_directory>
 
+import logging
+import time
+
+# Define logger
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(formatter)
+logging.Formatter.converter = time.localtime
+logger.addHandler(stream_handler)
+
+logger.info("Starting dynamic container layer change.")
+
+
 import os
 import requests
 import argparse
@@ -54,14 +70,14 @@ if __name__ == "__main__":
 
 	#Change model
 	#print(datetime.datetime.now())
-	#old_model_size = str(os.stat(old_model).st_size)
+	old_model_size = str(os.stat(old_model).st_size)
 	new_model_size = str(os.stat(new_model).st_size)
 	
-	#os.remove(old_model)
+	os.remove(old_model)
 	shutil.copy(new_model, old_model)
-	#print("OLD model(" + old_model_size + " bytes)" + " is updated to " + "NEW model(" + new_model_size + " bytes)" + " in container " + cid)
-        print("updated to " + "NEW model(" + new_model_size + " bytes)" + " in container " + cid)
+	print("OLD model(" + old_model_size + " bytes)" + " is updated to " + "NEW model(" + new_model_size + " bytes)" + " in container " + cid)
+        #print("updated to " + "NEW model(" + new_model_size + " bytes)" + " in container " + cid)
 	
 	url = "http://localhost:8080/can"
 	res = requests.get(url)
-	print(res.status_code,datetime.datetime.now())
+	print(res.status_code)
