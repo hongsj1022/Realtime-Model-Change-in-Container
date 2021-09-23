@@ -84,6 +84,45 @@ def monitoring():
 
 @app.route('/can', methods=["GET", "POST"])
 def can():
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--image_folder", type=str, default="can_detection/data/test/", help="path to dataset")
+        parser.add_argument("--video_file", type=str, default="0", help="path to dataset")
+        parser.add_argument("--model_def", type=str, default="can_detection/config/yolov3-tiny.cfg", help="path to model definition file")
+        parser.add_argument("--weights_path", type=str, default="can_detection/checkpoints_cafe7/tiny1_4000.pth", help="path to weights file")
+        parser.add_argument("--class_path", type=str, default="can_detection/data/cafe2/classes.names", help="path to class label file")
+        parser.add_argument("--conf_thres", type=float, default=0.8, help="object confidence threshold")
+        parser.add_argument("--nms_thres", type=float, default=0.4, help="iou thresshold for non-maximum suppression")
+        parser.add_argument("--batch_size", type=int, default=1, help="size of the batches")
+        parser.add_argument("--n_cpu", type=int, default=0, help="number of cpu threads to use during batch generation")
+        parser.add_argument("--img_size", type=int, default=416, help="size of each image dimension")
+        parser.add_argument("--checkpoint_model", type=str, help="path to checkpoint model")
+        opt = parser.parse_args()
+   
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # Set up model
+        model = Darknet(opt.model_def, img_size=opt.img_size).to(device)
+        if opt.weights_path.endswith(".weights"):
+        # Load darknet weights
+            model.load_darknet_weights(opt.weights_path)
+        else:
+        # Load checkpoint weights
+            model.load_state_dict(torch.load(opt.weights_path, map_location=device))
+
+        model.eval()  # Set in evaluation mode
+
+        #dataloader = DataLoader(
+        #    ImageFolder(opt.image_folder, img_size=opt.img_size),
+        #    batch_size=opt.batch_size,
+        #    shuffle=False,
+        #    num_workers=opt.n_cpu,
+        #)
+
+        classes = load_classes(opt.class_path)  # Extracts class labels from file
+
+        Tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
+
+        logger.info("Ready to provide AI service with updated model.")
+
         """ CCTV Streaming Page """
         return render_template('can.html')
 
@@ -169,7 +208,7 @@ def can_stream():
     cap = cv2.VideoCapture('can_detection/data/cafe7.avi')
     colors = np.random.randint(0, 255, size=(len(classes), 3), dtype="uint8")
     a=[]
-    
+
     while cap.isOpened():
         ret, img = cap.read()
         if ret is False:
