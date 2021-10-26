@@ -8,8 +8,8 @@ import datetime
 import redis
 import logging
 import time
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+#from watchdog.observers import Observer
+#from watchdog.events import FileSystemEventHandler
 
 # Define logger
 
@@ -21,7 +21,8 @@ stream_handler.setFormatter(formatter)
 logging.Formatter.converter = time.localtime
 logger.addHandler(stream_handler)
 
-class Target:
+'''
+class Watcher:
 
     watchDir = "/home/pi/dcl/dcl_manager/models"
 
@@ -47,7 +48,14 @@ class Handler(FileSystemEventHandler):
         if event.is_directory:
             return None
         elif event.event_type == "created":
-            #
+            print("Received created event - %s" % event.src_path)
+            filename = event.src_path.split("/")[-1]
+            dirname = event.src_path.split("/")[-2]
+            print(filename, dirname)
+        else:
+            return None
+'''
+            
 class DCL_Manager:
 
     def __init__(self):
@@ -79,16 +87,18 @@ class DCL_Manager:
 
     #Discover old model directory through redis
     def model_discovery(self):
-        model_dir = self.rd.get(self.model)        
+        model_name = self.model.split("/")[-1]
+        model_dir = self.rd.get(model_name)        
         
         return model_dir
 
     def run(self):
         diff = self.upper_dir()
+        new_model = self.model
         old_model = diff + self.model_discovery()
         
         #Discover old model directory
-        old_model = overlay + model_discovery(rd, new_model)
+        old_model = diff + self.model_discovery()
         
         #Change model
         old_model_size = str(os.stat(old_model).st_size)
@@ -97,7 +107,7 @@ class DCL_Manager:
         os.remove(old_model)
         shutil.copy(new_model, old_model)
         print("OLD model(" + old_model_size + " bytes)" + " is updated to "
-                + "NEW model(" + new_model_size + " bytes)" + " in container " + cid)
+                + "NEW model(" + new_model_size + " bytes)" + " in container " + self.cid)
         
         url = "http://localhost:8080/can"
         res = requests.get(url)
@@ -123,7 +133,6 @@ def args():
 if __name__ == "__main__":
     
     #How can DCL_Manager recognize that model uploaded in directory???
-
     logger.info("Starting dynamic container layer change.")
-    dclm = DCL_Manger()
+    dclm = DCL_Manager()
     dclm.run()
