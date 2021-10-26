@@ -109,7 +109,8 @@ class DCL_Manager:
         print("OLD model(" + old_model_size + " bytes)" + " is updated to "
                 + "NEW model(" + new_model_size + " bytes)" + " in container " + self.cid)
         
-        url = "http://localhost:8080/can"
+        url = "http://localhost:8080/" + self.rd.hmget(self.cid, self.model.split("/")[-1])[0].decode("utf-8")
+        print(url)
         res = requests.get(url)
         print(res.status_code)
 
